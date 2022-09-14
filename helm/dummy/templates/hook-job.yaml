@@ -1,0 +1,24 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: pi
+  namespace: default
+  annotations:
+    "helm.sh/hook": "pre-install,pre-upgrade"
+    "helm.sh/hook-delete-policy": "before-hook-creation,hook-succeeded,hook-failed"
+    "helm.sh/hook-weight": "-3"
+spec:
+  template:
+    spec:
+      tolerations:
+        - key: "key1"
+          operator: "Equal"
+          value: "value1"
+          effect: "NoSchedule"
+      containers:
+        - name: pi
+          image: perl:5.34.0
+          command: ["perl",  "-Mbignum=bpi", "-wle", "print bpi({{ .Values.pi.digits }})"]
+      restartPolicy: Never
+  backoffLimit: {{ .Values.pi.backoffLimit }}
